@@ -20,6 +20,12 @@ router.patch(
   userController.userUpdate
 );
 
+router.get(
+  "/",
+  checkAuth(...Object.values(Role.ADMIN)),
+  userController.getAllUsers
+);
+
 router.delete(
   "/:id",
   validationRequest(zodUpdateUserSchema),

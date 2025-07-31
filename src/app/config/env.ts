@@ -9,10 +9,10 @@ interface EnvConfig {
   BCRYPT_SALT_ROUND: string;
 
   JWT: {
-    JWT_SECRET: string;
-    JWT_EXPIRES_IN: string;
+    JWT_ACCESS_SECRET: string;
+    JWT_EXPIREDATE: string;
     JWT_REFRESH_SECRET: string;
-    JWT_REFRESH_EXPIRES_IN: string;
+    JWT_REFRESH_EXPIRES: string;
   };
 }
 
@@ -22,10 +22,10 @@ const loadEnvConfig = (): EnvConfig => {
     "DB_URL",
     "NODE_ENV",
     "BCRYPT_SALT_ROUND",
-    "JWT_SECRET",
-    "JWT_EXPIRES_IN",
+    "JWT_ACCESS_SECRET",
+    "JWT_EXPIREDATE",
     "JWT_REFRESH_SECRET",
-    "JWT_REFRESH_EXPIRES_IN",
+    "JWT_REFRESH_EXPIRES",
   ];
   envRequired.forEach((env) => {
     if (!process.env[env]) {
@@ -38,10 +38,10 @@ const loadEnvConfig = (): EnvConfig => {
     NODE_ENV: process.env.NODE_ENV || "development",
     BCRYPT_SALT_ROUND: process.env.BCRYPT_SALT_ROUND || "10",
     JWT: {
-      JWT_SECRET: process.env.JWT_SECRET || "",
-      JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "1d",
-      JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "",
-      JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
+      JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET as string,
+      JWT_EXPIREDATE: process.env.JWT_EXPIREDATE as string,
+      JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET as string,
+      JWT_REFRESH_EXPIRES: process.env.JWT_REFRESH_EXPIRES as string,
     },
   };
 };

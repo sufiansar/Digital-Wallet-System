@@ -18,7 +18,7 @@ export const checkAuth = (...authRoles: string[]) => {
 
       const verifiedToken = verifyToken(
         accecToken,
-        envConfig.JWT.JWT_SECRET
+        envConfig.JWT.JWT_ACCESS_SECRET
       ) as JwtPayload;
 
       const isUserexit = await User.findOne({ email: verifiedToken.email });

@@ -2,72 +2,70 @@ import { JwtPayload } from "jsonwebtoken";
 import { catchAsycn } from "../../utilities/catchAsync";
 import { Iuser } from "./user.interface";
 import { userService } from "./user.service";
+import { sendResponse } from "../../utilities/sendResponse";
+import { verifyToken } from "../../utilities/jwtToken";
+import AppError from "../../errors/appError";
 
 const createUser = catchAsycn(async (req, res, next) => {
   const payload: Iuser = req.body;
   const user = await userService.createUser(payload);
-  res.status(201).json({
-    status: "success",
+  sendResponse(res, {
+    successCode: 201,
+    success: true,
     message: "User created successfully",
     data: user,
   });
+  next();
 });
 
-const userUpdate = catchAsycn(async (req, res, decodedToken: JwtPayload) => {
-  const { id } = req.params;
+const userUpdate = catchAsycn(async (req, res) => {
+  const userId = req.params.id;
   const payload: Iuser = req.body;
+  const verifiedToken = req.user;
+  const user = await userService.userUpdate(
+    userId,
+    payload,
+    verifiedToken as JwtPayload
+  );
 
-  const user = await userService.userUpdate(id, payload, decodedToken);
-  if (!user) {
-    res.status(404).json({
-      status: "fail",
-      message: "User not found",
-    });
-    return;
-  }
-  res.status(200).json({
-    status: "success",
+  console.log(user);
+
+  sendResponse(res, {
+    successCode: 200,
+    success: true,
     message: "User updated successfully",
     data: user,
   });
 });
 
-const deleteUser = catchAsycn(async (req, res, _next) => {
+const deleteUser = catchAsycn(async (req, res) => {
   const { id } = req.params;
   const user = await userService.deleteUser(id, { isDeleted: true });
   if (!user) {
-    res.status(404).json({
-      status: "fail",
-      message: "User not found",
-    });
-    return;
+    throw new AppError(404, "User not found", "");
   }
-  res.status(200).json({
-    status: "success",
+  sendResponse(res, {
+    successCode: 200,
+    success: true,
     message: "User deleted successfully",
     data: user,
   });
 });
-const getUser = catchAsycn(async (req, res, _next) => {
-  const { id } = req.params;
-  const query: Partial<Iuser> = req.query as Partial<Iuser>;
-  const user = await userService.getUser(id, query);
-  if (!user) {
-    res.status(404).json({
-      status: "fail",
-      message: "User not found",
-    });
-    return;
-  }
-  res.status(200).json({
-    status: "success",
-    message: "User retrieved successfully",
-    data: user,
+
+const getAllUsers = catchAsycn(async (req, res, next) => {
+  const query = req.query;
+  const users = await userService.getAllUsers(query as Record<string, string>);
+  sendResponse(res, {
+    successCode: 200,
+    success: true,
+    message: "Users retrieved successfully",
+    data: users,
   });
 });
+
 export const userController = {
   createUser,
   userUpdate,
   deleteUser,
-  getUser,
+  getAllUsers,
 };

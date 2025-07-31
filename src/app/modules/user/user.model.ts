@@ -34,11 +34,6 @@ const userSchema = new Schema<Iuser>(
 
     role: { type: String, enum: Object.values(Role), default: Role.USER },
 
-    defaultMoney: {
-      type: Number,
-      default: 0,
-    },
-
     agentProfile: {
       type: agentProfileSchema,
       required: false,
@@ -50,31 +45,31 @@ const userSchema = new Schema<Iuser>(
       default: Isactive.ACTIVE,
     },
     isDeleted: { type: Boolean, default: false },
-    isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: true },
 
     auths: [authschema],
   },
   { timestamps: true, versionKey: false }
 );
 
-userSchema.pre("save", function (this: any, next) {
-  if (this.isNew || this.isModified("role")) {
-    if (this.role === Role.USER) {
-      this.defaultMoney = 50;
-      (this as any).agentProfile = undefined;
-    } else if (this.role === Role.AGENT) {
-      this.defaultMoney = 50;
-      if (!(this as any).agentProfile) {
-        (this as any).agentProfile = { commissionRate: 0.5 };
-      }
-    } else if (this.role === Role.ADMIN) {
-      this.defaultMoney = 0;
-      (this as any).agentProfile = undefined;
-    }
-  }
+// userSchema.pre("save", function (this: any, next) {
+//   if (this.isNew || this.isModified("role")) {
+//     if (this.role === Role.USER) {
+//       this.defaultMoney = 50;
+//       (this as any).agentProfile = undefined;
+//     } else if (this.role === Role.AGENT) {
+//       this.defaultMoney = 50;
+//       if (!(this as any).agentProfile) {
+//         (this as any).agentProfile = { commissionRate: 0.5 };
+//       }
+//     } else if (this.role === Role.ADMIN) {
+//       this.defaultMoney = 0;
+//       (this as any).agentProfile = undefined;
+//     }
+//   }
 
-  next();
-});
+//   next();
+// });
 
 export const User = model("User", userSchema);
 export default User;

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserRoutes } from "../user/user.route";
 import { AuthRoutes } from "../auth/auth.route";
+import { walletRoutes } from "../wallet/wallet.route";
 
 export const router = Router();
 export const modulerRoutes = [
@@ -11,6 +12,10 @@ export const modulerRoutes = [
   {
     path: "/auth",
     route: AuthRoutes,
+  },
+  {
+    path: "/wallet",
+    route: walletRoutes,
   },
 ];
 

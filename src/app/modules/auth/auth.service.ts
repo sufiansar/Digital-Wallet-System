@@ -1,14 +1,13 @@
-import { NextFunction, Request, Response } from "express";
 import AppError from "../../errors/appError";
 import User from "../user/user.model";
 import successCode from "http-status-codes";
 import bcryptjs from "bcryptjs";
 import { Iuser } from "../user/user.interface";
+import {
+  accessTokenAndRefreshToken,
+  tokenUser,
+} from "../../utilities/tokenUser";
 
-import jwt from "jsonwebtoken";
-import { envConfig } from "../../config/env";
-import { generateToken } from "../../utilities/jwtToken";
-import { env } from "process";
 const userLogin = async (payload: Partial<Iuser>) => {
   const { email, password } = payload;
   const isUserExits = await User.findOne({ email });
@@ -17,6 +16,20 @@ const userLogin = async (payload: Partial<Iuser>) => {
     throw new AppError(successCode.NOT_FOUND, "User not found", "");
   }
 
+  if (
+    isUserExits.isActive === "BLOCKED" ||
+    isUserExits.isActive === "INACTIVE"
+  ) {
+    throw new AppError(
+      successCode.BAD_REQUEST,
+      `User is ${isUserExits.isActive}`,
+      ""
+    );
+  }
+
+  if (isUserExits.isDeleted) {
+    throw new AppError(successCode.BAD_REQUEST, "User is deleted", "");
+  }
   const isPasswordMatch = await bcryptjs.compare(
     password as string,
     isUserExits.password
@@ -24,21 +37,24 @@ const userLogin = async (payload: Partial<Iuser>) => {
   if (!isPasswordMatch) {
     throw new AppError(successCode.UNAUTHORIZED, "Invalid password", "");
   }
+  const userToken = tokenUser(isUserExits);
 
-  const jwtPayload = {
-    email: isUserExits.email,
-    userId: isUserExits._id,
-    role: isUserExits.role,
-  };
-  const accessToken = generateToken(
-    jwtPayload,
-    envConfig.JWT.JWT_SECRET,
-    envConfig.JWT.JWT_EXPIRES_IN
-  );
+  const { password: pass, ...rest } = isUserExits.toObject();
   return {
-    accessToken,
+    accessToken: userToken.accessToken,
+    refreshToken: userToken.refreshToken,
+    rest: rest,
+  };
+};
+
+const getNewAccessToken = async (refreshToken: string) => {
+  const newAccessToken = await accessTokenAndRefreshToken(refreshToken);
+
+  return {
+    accessToken: newAccessToken,
   };
 };
 export const AuthService = {
   userLogin,
+  getNewAccessToken,
 };
