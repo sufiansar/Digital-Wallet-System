@@ -1,20 +1,26 @@
 import mongoose from "mongoose";
-import { IErrorSource, IGenericError } from "../interfaces/errorInterface";
+import {
+  TErrorSources,
+  TGenericErrorResponse,
+} from "../interfaces/errorInterface";
 
-export const handelValidationError = (
+export const handlerValidationError = (
   err: mongoose.Error.ValidationError
-): IGenericError => {
-  const errorSource: IErrorSource[] = [];
+): TGenericErrorResponse => {
+  const errorSources: TErrorSources[] = [];
 
-  Object.values(err.errors).forEach((e: any) => {
-    errorSource.push({
-      path: e.path,
-      message: e.message,
-    });
-  });
+  const errors = Object.values(err.errors);
+
+  errors.forEach((errorObject: any) =>
+    errorSources.push({
+      path: errorObject.path,
+      message: errorObject.message,
+    })
+  );
+
   return {
-    StatusCodes: 400,
-    message: "validation Error",
-    errorSource,
+    statusCode: 400,
+    message: "Validation Error",
+    errorSources,
   };
 };

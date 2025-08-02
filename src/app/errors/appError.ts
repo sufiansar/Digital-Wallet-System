@@ -1,7 +1,7 @@
 class AppError extends Error {
   public SuccessCode: number;
 
-  constructor(statusCode: number, message: string, stack: ``) {
+  constructor(statusCode: number, message: string, stack: string | undefined) {
     super(message);
     this.SuccessCode = statusCode;
     if (stack) {

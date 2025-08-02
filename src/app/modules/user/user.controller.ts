@@ -27,8 +27,6 @@ const userUpdate = catchAsycn(async (req, res) => {
     verifiedToken as JwtPayload
   );
 
-  console.log(user);
-
   sendResponse(res, {
     successCode: 200,
     success: true,
@@ -51,7 +49,7 @@ const deleteUser = catchAsycn(async (req, res) => {
   });
 });
 
-const getAllUsers = catchAsycn(async (req, res, next) => {
+const getAllUsers = catchAsycn(async (req, res) => {
   const query = req.query;
   const users = await userService.getAllUsers(query as Record<string, string>);
   sendResponse(res, {

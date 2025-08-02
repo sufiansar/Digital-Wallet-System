@@ -1,10 +1,10 @@
-export interface IErrorSource {
+export interface TErrorSources {
   path: string;
   message: string;
 }
 
-export interface IGenericError {
-  StatusCodes: number;
+export interface TGenericErrorResponse {
+  statusCode: number;
   message: string;
-  errorSource?: IErrorSource[];
+  errorSources?: TErrorSources[];
 }

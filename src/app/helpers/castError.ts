@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
-import { IGenericError } from "../interfaces/errorInterface";
+import { TGenericErrorResponse } from "../interfaces/errorInterface";
 
 export const handelCastError = (
   err: mongoose.Error.CastError
-): IGenericError => {
+): TGenericErrorResponse => {
+  const message = `Invalid value for field "${err.path}": "${err.value}". Please provide a valid MongoDB Object ID.`;
+
   return {
-    StatusCodes: 400,
-    message: "Invalid MongoDB Object ID. Please send a valid ID.",
+    statusCode: 400,
+    message,
   };
 };

@@ -1,4 +1,4 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model } from "mongoose";
 import { ITransaction } from "./transaction.interface";
 
 const transactionSchema = new Schema<ITransaction>(

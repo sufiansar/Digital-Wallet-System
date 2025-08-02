@@ -29,7 +29,6 @@ export const validationRequest =
         });
       }
 
-      console.error("Validation middleware error:", error);
       next(error);
     }
   };

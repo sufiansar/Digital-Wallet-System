@@ -1,18 +1,21 @@
-import { IErrorSource, IGenericError } from "../interfaces/errorInterface";
+import {
+  TErrorSources,
+  TGenericErrorResponse,
+} from "../interfaces/errorInterface";
 
-export const handelZodError = (err: any): IGenericError => {
-  const errorSource: IErrorSource[] = [];
+export const handlerZodError = (err: any): TGenericErrorResponse => {
+  const errorSources: TErrorSources[] = [];
 
   err.issues.forEach((issue: any) => {
-    errorSource.push({
+    errorSources.push({
       path: issue.path[issue.path.length - 1],
       message: issue.message,
     });
   });
 
   return {
-    StatusCodes: 400,
-    message: "Zod Validation Error",
-    errorSource,
+    statusCode: 400,
+    message: "Zod Error",
+    errorSources,
   };
 };

@@ -38,7 +38,7 @@ const userLogin = async (payload: Partial<Iuser>) => {
     throw new AppError(successCode.UNAUTHORIZED, "Invalid password", "");
   }
   const userToken = tokenUser(isUserExits);
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password: pass, ...rest } = isUserExits.toObject();
   return {
     accessToken: userToken.accessToken,

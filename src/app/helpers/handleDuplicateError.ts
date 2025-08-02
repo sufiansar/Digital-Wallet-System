@@ -1,9 +1,9 @@
-import { IGenericError } from "../interfaces/errorInterface";
+import { TGenericErrorResponse } from "../interfaces/errorInterface";
 
-export const handelDuplicateError = (err: any): IGenericError => {
+export const handelDuplicateError = (err: any): TGenericErrorResponse => {
   const matchArray = err.message.match(/"([^"]*)"/);
   return {
-    StatusCodes: 400,
+    statusCode: 400,
     message: `Duplicate Key Error: ${matchArray[-1]}`,
   };
 };
