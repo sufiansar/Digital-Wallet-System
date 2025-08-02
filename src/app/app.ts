@@ -8,6 +8,8 @@ import { globalErrorHandler } from "./middleware/errorHandlaer";
 
 app.use(cookieParser());
 app.use(express.json());
+app.set("trust proxy", true);
+app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1", router);
 
 app.get("/", (req: Request, res: Response) => {
