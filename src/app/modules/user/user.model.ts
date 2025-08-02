@@ -12,18 +12,6 @@ const authschema = new Schema<IAuths>(
   }
 );
 
-const agentProfileSchema = new Schema(
-  {
-    commissionRate: {
-      type: Number,
-      default: 0.5,
-    },
-  },
-  {
-    _id: false,
-  }
-);
-
 const userSchema = new Schema<Iuser>(
   {
     name: { type: String, required: true },
@@ -33,11 +21,6 @@ const userSchema = new Schema<Iuser>(
     picture: { type: String, default: "" },
 
     role: { type: String, enum: Object.values(Role), default: Role.USER },
-
-    agentProfile: {
-      type: agentProfileSchema,
-      required: false,
-    },
 
     isActive: {
       type: String,
@@ -51,25 +34,6 @@ const userSchema = new Schema<Iuser>(
   },
   { timestamps: true, versionKey: false }
 );
-
-// userSchema.pre("save", function (this: any, next) {
-//   if (this.isNew || this.isModified("role")) {
-//     if (this.role === Role.USER) {
-//       this.defaultMoney = 50;
-//       (this as any).agentProfile = undefined;
-//     } else if (this.role === Role.AGENT) {
-//       this.defaultMoney = 50;
-//       if (!(this as any).agentProfile) {
-//         (this as any).agentProfile = { commissionRate: 0.5 };
-//       }
-//     } else if (this.role === Role.ADMIN) {
-//       this.defaultMoney = 0;
-//       (this as any).agentProfile = undefined;
-//     }
-//   }
-
-//   next();
-// });
 
 export const User = model("User", userSchema);
 export default User;

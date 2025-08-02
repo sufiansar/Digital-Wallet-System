@@ -5,3 +5,9 @@ export interface IWallet {
   balance: number;
   isBlocked: boolean;
 }
+
+export interface CashOutParams {
+  receiverId: string;
+  senderId: string;
+  amount: number;
+}

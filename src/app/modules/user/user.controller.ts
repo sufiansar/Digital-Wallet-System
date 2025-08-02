@@ -1,9 +1,8 @@
 import { JwtPayload } from "jsonwebtoken";
 import { catchAsycn } from "../../utilities/catchAsync";
-import { Iuser } from "./user.interface";
+import { Isactive, Iuser } from "./user.interface";
 import { userService } from "./user.service";
 import { sendResponse } from "../../utilities/sendResponse";
-import { verifyToken } from "../../utilities/jwtToken";
 import AppError from "../../errors/appError";
 
 const createUser = catchAsycn(async (req, res, next) => {
@@ -63,9 +62,33 @@ const getAllUsers = catchAsycn(async (req, res, next) => {
   });
 });
 
+const approveAgent = catchAsycn(async (req, res) => {
+  const agentId = req.params.id;
+  const result = await userService.updateUserStatus(agentId, Isactive.ACTIVE);
+  sendResponse(res, {
+    successCode: 200,
+    success: true,
+    message: "Agent approved",
+    data: result,
+  });
+});
+
+const suspendAgent = catchAsycn(async (req, res) => {
+  const agentId = req.params.id;
+  const result = await userService.updateUserStatus(agentId, Isactive.INACTIVE);
+  sendResponse(res, {
+    successCode: 200,
+    success: true,
+    message: "Agent suspended",
+    data: result,
+  });
+});
+
 export const userController = {
   createUser,
   userUpdate,
   deleteUser,
   getAllUsers,
+  approveAgent,
+  suspendAgent,
 };

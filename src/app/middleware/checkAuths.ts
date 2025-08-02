@@ -1,52 +1,50 @@
 import { NextFunction, Request, Response } from "express";
-
-import { JwtPayload } from "jsonwebtoken";
-import { Isactive } from "../modules/user/user.interface";
-import { User } from "../modules/user/user.model";
-import httpSuccessCode from "http-status-codes";
 import AppError from "../errors/appError";
 import { verifyToken } from "../utilities/jwtToken";
-import { envConfig } from "../config/env";
 
-export const checkAuth = (...authRoles: string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+import { envConfig } from "../config/env";
+import { JwtPayload } from "jsonwebtoken";
+import User from "../modules/user/user.model";
+import { Isactive } from "../modules/user/user.interface";
+import httpStatus from "http-status-codes";
+
+export const checkAuth =
+  (...authRoles: string[]) =>
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const accecToken = req.headers.authorization;
-      if (!accecToken) {
-        throw new AppError(403, "Token Not found", "");
+      const accessToken = req.cookies.accessToken || req.headers.authorization;
+
+      if (!accessToken) {
+        throw new AppError(403, "No Token Recieved", "");
       }
 
       const verifiedToken = verifyToken(
-        accecToken,
+        accessToken,
         envConfig.JWT.JWT_ACCESS_SECRET
       ) as JwtPayload;
 
-      const isUserexit = await User.findOne({ email: verifiedToken.email });
-      if (!isUserexit) {
-        throw new AppError(
-          httpSuccessCode.BAD_REQUEST,
-          "User does not exist",
-          ""
-        );
-      }
+      const isUserExist = await User.findOne({ email: verifiedToken.email });
 
+      if (!isUserExist) {
+        throw new AppError(httpStatus.BAD_REQUEST, "User does not exist", "");
+      }
+      if (!isUserExist.isVerified) {
+        throw new AppError(httpStatus.BAD_REQUEST, "User is not verified", "");
+      }
       if (
-        isUserexit.isActive === Isactive.BLOCKED ||
-        isUserexit.isActive === Isactive.INACTIVE
+        isUserExist.isActive === Isactive.BLOCKED ||
+        isUserExist.isActive === Isactive.INACTIVE
       ) {
         throw new AppError(
-          httpSuccessCode.BAD_REQUEST,
-          `User is ${isUserexit.isActive}`,
+          httpStatus.BAD_REQUEST,
+          `User is ${isUserExist.isActive}`,
           ""
         );
       }
+      if (isUserExist.isDeleted) {
+        throw new AppError(httpStatus.BAD_REQUEST, "User is deleted", "");
+      }
 
-      if (isUserexit.isDeleted) {
-        throw new AppError(httpSuccessCode.BAD_REQUEST, "User deleted", "");
-      }
-      if (!isUserexit.isVerified) {
-        throw new AppError(403, "User Not Verified", "");
-      }
       if (!authRoles.includes(verifiedToken.role)) {
         throw new AppError(
           403,
@@ -54,11 +52,10 @@ export const checkAuth = (...authRoles: string[]) => {
           ""
         );
       }
-
       req.user = verifiedToken;
       next();
     } catch (error) {
+      console.log("jwt error", error);
       next(error);
     }
   };
-};

@@ -10,10 +10,35 @@ router.get(
   checkAuth(...Object.values(Role)),
   walletController.getMyWallet
 );
-
-router.get(
-  "/:id",
-  checkAuth(...Object.values(Role.ADMIN)),
-  walletController.getWalletById
+router.post(
+  "/add-balance/:userId",
+  checkAuth(Role.ADMIN),
+  walletController.addBalance
 );
+router.post("/cash-in", checkAuth(Role.AGENT), walletController.cashIn);
+router.post(
+  "/cash-out",
+  checkAuth(...Object.values(Role)),
+  walletController.cashOut
+);
+router.post(
+  "/send-money",
+  checkAuth(...Object.values(Role)),
+  walletController.sendMoney
+);
+router.post(
+  "/withdraw-money",
+  checkAuth(...Object.values(Role)),
+  walletController.withdrawMoney
+);
+
+router.patch("/block/:id", checkAuth(Role.ADMIN), walletController.blockWallet);
+router.patch(
+  "/unblock/:id",
+  checkAuth(Role.ADMIN),
+  walletController.unblockWallet
+);
+router.get("/all", checkAuth(Role.ADMIN), walletController.getAllWallets);
+router.get("/:id", checkAuth(Role.ADMIN), walletController.getWalletById);
+
 export const walletRoutes = router;

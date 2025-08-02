@@ -1,9 +1,10 @@
 import { JwtPayload } from "jsonwebtoken";
 import { envConfig } from "../../config/env";
-import { IAuths, Iuser, Role } from "./user.interface";
+import { IAuths, Isactive, Iuser, Role } from "./user.interface";
 import User from "./user.model";
 import bycrypt from "bcryptjs";
 import { Wallet } from "../wallet/wallet.model";
+import { QueryBuilder } from "../../utilities/QueryBuilder";
 
 const createUser = async (payload: Partial<Iuser>) => {
   const { email, password, ...rest } = payload;
@@ -110,16 +111,30 @@ const deleteUser = async (id: string, update: Partial<Iuser>) => {
 };
 
 const getAllUsers = async (query: Record<string, string>) => {
-  const users = await User.find({});
-  const totalUser = await User.countDocuments();
+  const queryBuilder = new QueryBuilder(User.find(), query);
+
+  const users = await queryBuilder.search(["name", "email"]).sort().paginate();
+  const [data, meta] = await Promise.all([users.build(), users.getMeta()]);
+
   return {
-    users,
-    totalUser,
+    data,
+    meta,
   };
+};
+
+const updateUserStatus = async (id: string, status: Isactive) => {
+  const updated = await User.findByIdAndUpdate(
+    id,
+    { isActive: status },
+    { new: true }
+  );
+  if (!updated) throw new Error("User not found");
+  return updated;
 };
 export const userService = {
   createUser,
   userUpdate,
   deleteUser,
   getAllUsers,
+  updateUserStatus,
 };

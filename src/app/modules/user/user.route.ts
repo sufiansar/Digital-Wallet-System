@@ -15,21 +15,28 @@ router.post(
 );
 router.patch(
   "/:id",
-  checkAuth(...Object.values(Role)),
+  checkAuth(Role.ADMIN),
   validationRequest(zodUpdateUserSchema),
   userController.userUpdate
 );
 
-router.get(
-  "/",
-  checkAuth(...Object.values(Role.ADMIN)),
-  userController.getAllUsers
-);
+router.get("/", checkAuth(Role.ADMIN), userController.getAllUsers);
 
 router.delete(
   "/:id",
+  checkAuth(...Object.values(Role)),
   validationRequest(zodUpdateUserSchema),
   userController.deleteUser
+);
+router.patch(
+  "/approve-agent/:id",
+  checkAuth(Role.ADMIN),
+  userController.approveAgent
+);
+router.patch(
+  "/suspend-agent/:id",
+  checkAuth(Role.ADMIN),
+  userController.suspendAgent
 );
 
 export const UserRoutes = router;
