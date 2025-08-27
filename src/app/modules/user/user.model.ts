@@ -16,7 +16,7 @@ const userSchema = new Schema<Iuser>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    phone: { type: Number },
+    phone: { type: String, required: true, unique: true },
     password: { type: String },
     picture: { type: String, default: "" },
 
@@ -28,7 +28,7 @@ const userSchema = new Schema<Iuser>(
       default: Isactive.ACTIVE,
     },
     isDeleted: { type: Boolean, default: false },
-    isVerified: { type: Boolean, default: true },
+    isVerified: { type: Boolean, default: false },
 
     auths: [authschema],
   },

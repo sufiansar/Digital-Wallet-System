@@ -17,7 +17,7 @@ router.get(
 );
 router.get(
   "/all",
-  checkAuth(Role.ADMIN),
+  checkAuth(Role.AGENT, Role.ADMIN),
   transactionController.getAllTransactions
 );
 

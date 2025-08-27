@@ -14,11 +14,16 @@ router.post(
   userController.createUser
 );
 router.patch(
-  "/:id",
-  checkAuth(Role.ADMIN),
+  "/profile",
+  checkAuth(...Object.values(Role)),
   validationRequest(zodUpdateUserSchema),
   userController.userUpdate
 );
+router.get("/agents", checkAuth(Role.ADMIN), userController.getAllAgents);
+
+router.get("/:id", checkAuth(...Object.values(Role)), userController.getMe);
+
+router.get("/me", checkAuth(...Object.values(Role)), userController.getMe);
 
 router.get("/", checkAuth(Role.ADMIN), userController.getAllUsers);
 
@@ -28,6 +33,23 @@ router.delete(
   validationRequest(zodUpdateUserSchema),
   userController.deleteUser
 );
+
+router.patch(
+  "/block-user/:phone",
+  checkAuth(Role.ADMIN),
+  userController.blockUser
+);
+router.patch(
+  "/unblock-user/:phone",
+  checkAuth(Role.ADMIN),
+  userController.unblockUser
+);
+router.post(
+  "/set-inactive-user",
+  checkAuth(Role.ADMIN),
+  userController.setInactiveUser
+);
+
 router.patch(
   "/approve-agent/:id",
   checkAuth(Role.ADMIN),

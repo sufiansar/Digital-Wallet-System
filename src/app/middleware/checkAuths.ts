@@ -56,7 +56,6 @@ export const checkAuth =
       next();
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      console.log("jwt error", error);
       next(error);
     }
   };

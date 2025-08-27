@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import { envConfig } from "../config/env";
 import { handelDuplicateError } from "../helpers/handleDuplicateError";
 import { handelCastError } from "../helpers/castError";
@@ -7,7 +7,6 @@ import { handlerValidationError } from "../helpers/handleValidationError";
 import { handlerZodError } from "../helpers/handleZodError";
 export const globalErrorHandler = (
   err: any,
-  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -51,4 +50,5 @@ export const globalErrorHandler = (
     err: envConfig.NODE_ENV === "Development" ? err : null,
     stack: envConfig.NODE_ENV === "Development" ? err.stack : undefined,
   });
+  next();
 };

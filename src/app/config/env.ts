@@ -14,6 +14,20 @@ interface EnvConfig {
     JWT_REFRESH_SECRET: string;
     JWT_REFRESH_EXPIRES: string;
   };
+  FRONTEND_URL: string;
+  SMTP: {
+    SMTP_HOST: string;
+    SMTP_PORT: number;
+    SMTP_USER: string;
+    SMTP_PASS: string;
+    SMTP_FROM: string;
+  };
+  REDIS: {
+    REDIS_PORT: number;
+    REDIS_HOST: string;
+    REDIS_PASS: string;
+    REDIS_USERNAME: string;
+  };
 }
 
 const loadEnvConfig = (): EnvConfig => {
@@ -26,6 +40,16 @@ const loadEnvConfig = (): EnvConfig => {
     "JWT_EXPIREDATE",
     "JWT_REFRESH_SECRET",
     "JWT_REFRESH_EXPIRES",
+    "SMTP_HOST",
+    "SMTP_PORT",
+    "SMTP_USER",
+    "SMTP_PASS",
+    "SMTP_FROM",
+    "FRONTEND_URL",
+    "REDIS_PORT",
+    "REDIS_HOST",
+    "REDIS_PASS",
+    "REDIS_USERNAME",
   ];
   envRequired.forEach((env) => {
     if (!process.env[env]) {
@@ -42,6 +66,20 @@ const loadEnvConfig = (): EnvConfig => {
       JWT_EXPIREDATE: process.env.JWT_EXPIREDATE as string,
       JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET as string,
       JWT_REFRESH_EXPIRES: process.env.JWT_REFRESH_EXPIRES as string,
+    },
+    FRONTEND_URL: process.env.FRONTEND_URL as string,
+    SMTP: {
+      SMTP_HOST: process.env.SMTP_HOST as string,
+      SMTP_PORT: parseInt(process.env.SMTP_PORT as string),
+      SMTP_USER: process.env.SMTP_USER as string,
+      SMTP_PASS: process.env.SMTP_PASS as string,
+      SMTP_FROM: process.env.SMTP_FROM as string,
+    },
+    REDIS: {
+      REDIS_PORT: Number(process.env.REDIS_PORT),
+      REDIS_HOST: process.env.REDIS_HOST as string,
+      REDIS_PASS: process.env.REDIS_PASS as string,
+      REDIS_USERNAME: process.env.REDIS_USERNAME as string,
     },
   };
 };

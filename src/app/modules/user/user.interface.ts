@@ -22,7 +22,7 @@ export interface Iuser {
   _id?: Types.ObjectId;
   name: string;
   email: string;
-  phone?: number;
+  phone: string;
   password: string;
   picture?: string;
   defaultMoney?: number;

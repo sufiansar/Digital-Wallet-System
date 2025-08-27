@@ -15,8 +15,7 @@ export const zodUserSchema = z.object({
     .regex(
       /^(?:\+88)?01[3-9]\d{8}$/,
       "Phone must be a valid Bangladeshi number"
-    )
-    .optional(),
+    ),
   password: z
     .string()
     .regex(

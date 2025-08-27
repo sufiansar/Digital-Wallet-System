@@ -6,7 +6,7 @@ import { walletService } from "./wallet.service";
 
 const getMyWallet = catchAsycn(async (req: Request, res: Response) => {
   const user = req.user as JwtPayload;
-  const result = await walletService.getMyWallet(user.userId);
+  const result = await walletService.getMyWallet(user.phone);
   sendResponse(res, {
     success: true,
     successCode: 200,
@@ -14,7 +14,6 @@ const getMyWallet = catchAsycn(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
 const getWalletById = catchAsycn(async (req: Request, res: Response) => {
   const walletId = req.params.id;
   const result = await walletService.getWalletById(walletId);
@@ -27,10 +26,10 @@ const getWalletById = catchAsycn(async (req: Request, res: Response) => {
 });
 
 const addBalance = catchAsycn(async (req: Request, res: Response) => {
-  const { amount } = req.body;
-  const { userId } = req.params;
+  const { phone, amount } = req.body;
   const requester = req.user as JwtPayload;
-  const result = await walletService.addBalance(userId, amount, requester);
+
+  const result = await walletService.addBalance(phone, amount, requester);
   sendResponse(res, {
     success: true,
     successCode: 200,
@@ -41,8 +40,10 @@ const addBalance = catchAsycn(async (req: Request, res: Response) => {
 
 const cashIn = catchAsycn(async (req: Request, res: Response) => {
   const agentId = (req.user as JwtPayload).userId;
-  const { receiver, amount } = req.body;
-  const result = await walletService.cashIn(agentId, receiver, amount);
+  const { receiverPhone, amount } = req.body;
+
+  const result = await walletService.cashIn(agentId, receiverPhone, amount);
+
   sendResponse(res, {
     success: true,
     successCode: 200,
@@ -51,20 +52,34 @@ const cashIn = catchAsycn(async (req: Request, res: Response) => {
   });
 });
 
-const cashOut = catchAsycn(async (req: Request, res: Response) => {
-  const result = await walletService.cashOut(req.body);
+const deposit = catchAsycn(async (req: Request, res: Response) => {
+  const userId = (req.user as JwtPayload).userId;
+  const { receiverPhone, amount } = req.body;
+
+  const result = await walletService.deposit(
+    userId,
+    receiverPhone,
+    Number(amount)
+  );
+
   sendResponse(res, {
     success: true,
     successCode: 200,
-    message: "Cash-out successful",
+    message: "Deposit successful",
     data: result,
   });
 });
 
 const sendMoney = catchAsycn(async (req: Request, res: Response) => {
-  const senderId = (req.user as JwtPayload).userId;
-  const { receiverId, amount } = req.body;
-  const result = await walletService.sendMoney(senderId, receiverId, amount);
+  const senderPhone = req.user?.phone;
+  const { receiverPhone, amount } = req.body;
+
+  const result = await walletService.sendMoney(
+    senderPhone,
+    receiverPhone,
+    amount
+  );
+
   sendResponse(res, {
     success: true,
     successCode: 200,
@@ -73,10 +88,27 @@ const sendMoney = catchAsycn(async (req: Request, res: Response) => {
   });
 });
 
+const cashOut = catchAsycn(async (req: Request, res: Response) => {
+  const senderPhone = req.user?.phone;
+  const { receiverPhone, amount } = req.body;
+  const result = await walletService.cashOut(
+    senderPhone,
+    receiverPhone,
+    amount
+  );
+
+  sendResponse(res, {
+    success: true,
+    successCode: 200,
+    message: "Cash-out successful",
+    data: result,
+  });
+});
+
 const withdrawMoney = catchAsycn(async (req: Request, res: Response) => {
-  const userId = (req.user as JwtPayload).userId;
+  const userPhone = (req.user as JwtPayload).phone;
   const { amount } = req.body;
-  const result = await walletService.withdrawMoney(userId, amount);
+  const result = await walletService.withdrawMoney(userPhone, amount);
   sendResponse(res, {
     success: true,
     successCode: 200,
@@ -86,8 +118,8 @@ const withdrawMoney = catchAsycn(async (req: Request, res: Response) => {
 });
 
 const blockWallet = catchAsycn(async (req: Request, res: Response) => {
-  const walletId = req.params.id;
-  const result = await walletService.updateWalletBlockStatus(walletId, true);
+  const { phone } = req.body;
+  const result = await walletService.updateWalletBlockStatus(phone, true);
   sendResponse(res, {
     success: true,
     successCode: 200,
@@ -95,9 +127,11 @@ const blockWallet = catchAsycn(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
 const unblockWallet = catchAsycn(async (req: Request, res: Response) => {
-  const walletId = req.params.id;
-  const result = await walletService.updateWalletBlockStatus(walletId, false);
+  const { phone } = req.body;
+
+  const result = await walletService.updateWalletBlockStatus(phone, false);
   sendResponse(res, {
     success: true,
     successCode: 200,
@@ -105,6 +139,7 @@ const unblockWallet = catchAsycn(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
 const getAllWallets = catchAsycn(async (req: Request, res: Response) => {
   const result = await walletService.getAllWallets(
     req.query as Record<string, string>
@@ -117,15 +152,28 @@ const getAllWallets = catchAsycn(async (req: Request, res: Response) => {
   });
 });
 
+const getOverview = catchAsycn(async (req: Request, res: Response) => {
+  const userId = (req.user as JwtPayload).userId;
+  const data = await walletService.getOverview(userId);
+  sendResponse(res, {
+    success: true,
+    successCode: 200,
+    message: "Wallet overview fetched successfully",
+    data,
+  });
+});
+
 export const walletController = {
   getMyWallet,
-  getWalletById,
   addBalance,
   cashIn,
-  cashOut,
   sendMoney,
+  cashOut,
   withdrawMoney,
   blockWallet,
   unblockWallet,
   getAllWallets,
+  getWalletById,
+  getOverview,
+  deposit,
 };

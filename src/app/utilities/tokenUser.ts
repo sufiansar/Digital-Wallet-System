@@ -11,6 +11,7 @@ export const tokenUser = (user: Partial<Iuser>) => {
   const jwtPayload = {
     email: user.email,
     userId: user._id,
+    phone: user.phone,
     role: user.role,
   };
   const accessToken = generateToken(
@@ -59,6 +60,7 @@ export const accessTokenAndRefreshToken = async (refreshToken: string) => {
   const jwtPayload = {
     userId: isUserExist._id,
     email: isUserExist.email,
+    phone: isUserExist.phone,
     role: isUserExist.role,
   };
   const accessToken = generateToken(

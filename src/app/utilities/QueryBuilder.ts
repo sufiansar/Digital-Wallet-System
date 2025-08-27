@@ -10,7 +10,7 @@ export class QueryBuilder<T> {
   }
 
   search(SearchableFields: string[]): this {
-    const searchTerm = this.query.searchTerm || "";
+    const searchTerm = this.query.search || "";
     if (searchTerm) {
       const searchQuery = {
         $or: SearchableFields.map((field) => ({
@@ -19,6 +19,26 @@ export class QueryBuilder<T> {
       };
       this.modelQuery = this.modelQuery.find(searchQuery);
     }
+    return this;
+  }
+
+  filter(fields: string[]) {
+    const filterObj: any = {};
+    if (fields.includes("type") && this.query.type)
+      filterObj.type = this.query.type;
+    if (fields.includes("status") && this.query.status)
+      filterObj.status = this.query.status;
+    if (fields.includes("minAmount") && this.query.minAmount)
+      filterObj.amount = {
+        ...filterObj.amount,
+        $gte: Number(this.query.minAmount),
+      };
+    if (fields.includes("maxAmount") && this.query.maxAmount)
+      filterObj.amount = {
+        ...filterObj.amount,
+        $lte: Number(this.query.maxAmount),
+      };
+    this.modelQuery = this.modelQuery.find(filterObj);
     return this;
   }
 

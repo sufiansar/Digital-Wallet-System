@@ -6,6 +6,8 @@ import bycrypt from "bcryptjs";
 import { Wallet } from "../wallet/wallet.model";
 import { QueryBuilder } from "../../utilities/QueryBuilder";
 
+import AppError from "../../errors/appError";
+
 const createUser = async (payload: Partial<Iuser>) => {
   const { email, password, ...rest } = payload;
   const isEmailExists = await User.findOne({ email });
@@ -28,6 +30,7 @@ const createUser = async (payload: Partial<Iuser>) => {
     auths: [authProviders],
     ...rest,
   });
+
   if (user.role === "ADMIN") {
     await Wallet.create({
       user: user._id,
@@ -44,7 +47,14 @@ const createUser = async (payload: Partial<Iuser>) => {
   return user;
 };
 
-const userUpdate = async (
+const getMe = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+  return {
+    data: user,
+  };
+};
+
+const updateUser = async (
   userId: string,
   payload: Partial<Iuser>,
   decodedToken: JwtPayload
@@ -52,33 +62,24 @@ const userUpdate = async (
   const targetUser = await User.findById(userId);
 
   if (!targetUser) {
-    throw new Error("User not found");
+    throw new AppError(404, "User not found", "");
   }
 
   const requesterRole = decodedToken.role;
   const requesterId = decodedToken.userId;
   const isSelfUpdate = requesterId === userId;
 
-  if (targetUser.role === Role.ADMIN) {
-    throw new Error("You are not allowed to update an admin user");
+  // Only admin can update other users
+  if (requesterRole !== Role.ADMIN && !isSelfUpdate) {
+    throw new AppError(403, "You can only update your own profile", "");
   }
 
-  if (requesterRole !== Role.ADMIN) {
-    if (!isSelfUpdate) {
-      throw new Error("You can only update your own profile");
-    }
-
-    if (payload.role && payload.role !== targetUser.role) {
-      throw new Error("You are not allowed to change your role");
-    }
+  // Users cannot change their role
+  if (payload.role && payload.role !== targetUser.role) {
+    throw new AppError(403, "You are not allowed to change your role", "");
   }
 
-  if (requesterRole === Role.ADMIN) {
-    if (payload.role && payload.role === Role.ADMIN) {
-      throw new Error("Admin role cannot be assigned to anyone");
-    }
-  }
-
+  // Hash password if provided
   if (payload.password) {
     payload.password = await bycrypt.hash(
       payload.password,
@@ -86,13 +87,14 @@ const userUpdate = async (
     );
   }
 
+  // Update only the fields provided (name, phone, password)
   const updatedUser = await User.findByIdAndUpdate(userId, payload, {
     new: true,
     runValidators: true,
   });
 
   if (!updatedUser) {
-    throw new Error("Failed to update user");
+    throw new AppError(500, "Failed to update user", "");
   }
 
   return updatedUser;
@@ -122,6 +124,19 @@ const getAllUsers = async (query: Record<string, string>) => {
   };
 };
 
+const getAllAgents = async (query?: Record<string, string>) => {
+  const agentsFilter = { role: Role.AGENT };
+  const queryBuilder = new QueryBuilder(User.find(agentsFilter), query || {});
+
+  const agents = await queryBuilder.search(["name", "email"]).sort().paginate();
+  const [data, meta] = await Promise.all([agents.build(), agents.getMeta()]);
+
+  return {
+    data,
+    meta,
+  };
+};
+
 const updateUserStatus = async (id: string, status: Isactive) => {
   const updated = await User.findByIdAndUpdate(
     id,
@@ -131,10 +146,52 @@ const updateUserStatus = async (id: string, status: Isactive) => {
   if (!updated) throw new Error("User not found");
   return updated;
 };
+export const blockUser = async (phone: string) => {
+  const user = await User.findOne({ phone });
+  if (!user) throw new Error("User not found");
+
+  if (user.role === Role.ADMIN) {
+    throw new Error("Admin users cannot be blocked");
+  }
+  user.isActive = Isactive.BLOCKED;
+  await user.save();
+
+  return user;
+};
+
+export const unblockUser = async (phone: string) => {
+  const user = await User.findOne({ phone });
+  if (!user) throw new Error("User not found");
+  if (user.role === Role.ADMIN)
+    throw new Error("Admin users cannot be unblocked");
+
+  user.isActive = Isactive.ACTIVE;
+  await user.save();
+
+  return user;
+};
+
+export const setInactiveUser = async (phone: string) => {
+  if (!phone) throw new Error("Phone number is required");
+
+  const user = await User.findOne({ phone });
+  if (!user) throw new Error("User not found");
+
+  user.isActive = Isactive.INACTIVE; // use enum value
+  await user.save();
+
+  return user;
+};
+
 export const userService = {
   createUser,
-  userUpdate,
+  updateUser,
   deleteUser,
   getAllUsers,
   updateUserStatus,
+  getMe,
+  blockUser,
+  unblockUser,
+  setInactiveUser,
+  getAllAgents,
 };

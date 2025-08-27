@@ -7,20 +7,27 @@ import { transactionService } from "./transaction.service";
 
 const getMyTransactions = catchAsycn(async (req: Request, res: Response) => {
   const userId = (req.user as JwtPayload).userId;
-  const result = await transactionService.getMyTransactions(userId);
+  const result = await transactionService.getMyTransactions(userId, req.query);
+
   sendResponse(res, {
     success: true,
     successCode: 200,
     message: "Transactions fetched successfully",
-    data: result,
+    data: result.transactions,
+    meta: {
+      ...result.meta,
+      totalPages: result.meta.totalPage,
+      totalItems: result.meta.total,
+    },
   });
 });
 
 const getAllTransactions = catchAsycn(async (req: Request, res: Response) => {
   const query = req.query;
   const result = await transactionService.getAllTransactions(
-    query as Record<string, string>
+    query as Record<string, any>
   );
+
   sendResponse(res, {
     success: true,
     successCode: 200,

@@ -6,6 +6,7 @@ import { AuthService } from "./auth.service";
 
 import httpStatus from "http-status-codes";
 import { setAuthCookie } from "../../utilities/setCookie";
+import { JwtPayload } from "jsonwebtoken";
 
 const userLogin = catchAsycn(async (req: Request, res: Response) => {
   const loginInfo = await AuthService.userLogin(req.body);
@@ -66,8 +67,65 @@ const logout = catchAsycn(async (req: Request, res: Response) => {
   });
 });
 
+const resetPassword = catchAsycn(async (req: Request, res: Response) => {
+  const decodedToken = req.user;
+
+  await AuthService.resetPassword(req.body, decodedToken as JwtPayload);
+  sendResponse(res, {
+    success: true,
+    successCode: httpStatus.OK,
+    message: "Password Change  Succesfully",
+    data: null,
+  });
+});
+
+const setPassword = catchAsycn(async (req: Request, res: Response) => {
+  const decodedToken = req.user as JwtPayload;
+  const { password } = req.body;
+
+  await AuthService.setPassword(decodedToken.userId, password);
+  sendResponse(res, {
+    success: true,
+    successCode: httpStatus.OK,
+    message: "Password Change  Succesfully",
+    data: null,
+  });
+});
+
+const forgotPassword = catchAsycn(async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  await AuthService.forgotPassword(email);
+  sendResponse(res, {
+    success: true,
+    successCode: httpStatus.OK,
+    message: "Email Sent Succesfully",
+    data: null,
+  });
+});
+const changePassword = catchAsycn(async (req: Request, res: Response) => {
+  const decodedToken = req.user;
+  const newPassword = req.body.newPassword;
+  const oldPassword = req.body.oldPassword;
+  await AuthService.changePassword(
+    decodedToken as JwtPayload,
+    newPassword,
+    oldPassword
+  );
+  sendResponse(res, {
+    success: true,
+    successCode: httpStatus.OK,
+    message: "Password Change  Succesfully",
+    data: null,
+  });
+});
+
 export const AuthController = {
   userLogin,
   getNewAccessToken,
   logout,
+  resetPassword,
+  setPassword,
+  forgotPassword,
+  changePassword,
 };

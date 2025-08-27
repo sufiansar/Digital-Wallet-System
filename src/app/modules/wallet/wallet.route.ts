@@ -10,12 +10,13 @@ router.get(
   checkAuth(...Object.values(Role)),
   walletController.getMyWallet
 );
-router.post(
-  "/add-balance/:userId",
-  checkAuth(Role.ADMIN),
-  walletController.addBalance
+router.get(
+  "/overview",
+  checkAuth(...Object.values(Role)),
+  walletController.getOverview
 );
-router.post("/cash-in", checkAuth(Role.AGENT), walletController.cashIn);
+router.post("/add-balance", checkAuth(Role.ADMIN), walletController.addBalance); // phone in body
+router.post("/cash-in", checkAuth(Role.AGENT), walletController.cashIn); // agent -> user
 router.post(
   "/cash-out",
   checkAuth(...Object.values(Role)),
@@ -26,19 +27,17 @@ router.post(
   checkAuth(...Object.values(Role)),
   walletController.sendMoney
 );
+router.post("/deposit", checkAuth(Role.USER), walletController.deposit);
 router.post(
   "/withdraw-money",
   checkAuth(...Object.values(Role)),
   walletController.withdrawMoney
 );
 
-router.patch("/block/:id", checkAuth(Role.ADMIN), walletController.blockWallet);
-router.patch(
-  "/unblock/:id",
-  checkAuth(Role.ADMIN),
-  walletController.unblockWallet
-);
+router.patch("/block", checkAuth(Role.ADMIN), walletController.blockWallet); // phone in body
+router.patch("/unblock", checkAuth(Role.ADMIN), walletController.unblockWallet); // phone in body
 router.get("/all", checkAuth(Role.ADMIN), walletController.getAllWallets);
+
 router.get("/:id", checkAuth(Role.ADMIN), walletController.getWalletById);
 
 export const walletRoutes = router;
