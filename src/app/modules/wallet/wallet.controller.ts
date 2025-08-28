@@ -106,13 +106,18 @@ const cashOut = catchAsycn(async (req: Request, res: Response) => {
 });
 
 const withdrawMoney = catchAsycn(async (req: Request, res: Response) => {
-  const userPhone = (req.user as JwtPayload).phone;
-  const { amount } = req.body;
-  const result = await walletService.withdrawMoney(userPhone, amount);
+  const senderPhone = (req.user as JwtPayload).phone;
+  const { amount, receiverPhone } = req.body;
+  const result = await walletService.withdrawMoney(
+    senderPhone,
+    amount,
+    receiverPhone
+  );
+
   sendResponse(res, {
     success: true,
     successCode: 200,
-    message: "Money withdrawn successfully",
+    message: `Money transferred successfully to ${receiverPhone}`,
     data: result,
   });
 });

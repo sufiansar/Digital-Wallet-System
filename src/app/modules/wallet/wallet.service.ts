@@ -318,26 +318,45 @@ const cashOut = async (
   }
 };
 
-const withdrawMoney = async (phone: string, amount: number) => {
-  const user = await findUserByPhone(phone);
+const withdrawMoney = async (
+  senderPhone: string,
+  amount: number,
+  receiverPhone: string
+) => {
+  const sender = await findUserByPhone(senderPhone);
+  const receiver = await findUserByPhone(receiverPhone);
+
+  if (!receiver) throw new AppError(404, "Receiver not found", "");
 
   const session = await mongoose.startSession();
   session.startTransaction();
+
   try {
-    const wallet = await Wallet.findOne({ user: user._id }).session(session);
-    if (!wallet || wallet.isBlocked)
-      throw new AppError(403, "Wallet blocked", "");
-    if (wallet.balance < amount)
+    const senderWallet = await Wallet.findOne({ user: sender._id }).session(
+      session
+    );
+    const receiverWallet = await Wallet.findOne({ user: receiver._id }).session(
+      session
+    );
+
+    if (!senderWallet || senderWallet.isBlocked)
+      throw new AppError(403, "Your wallet is blocked", "");
+    if (!receiverWallet || receiverWallet.isBlocked)
+      throw new AppError(403, "Receiver's wallet is blocked", "");
+    if (senderWallet.balance < amount)
       throw new AppError(400, "Insufficient balance", "");
 
-    wallet.balance -= amount;
-    await wallet.save({ session });
+    senderWallet.balance -= amount;
+    receiverWallet.balance += amount;
+
+    await senderWallet.save({ session });
+    await receiverWallet.save({ session });
 
     await Transaction.create(
       [
         {
-          sender: user._id,
-          receiver: user._id,
+          sender: sender._id,
+          receiver: receiver._id,
           amount,
           type: "withdrawal",
           status: "completed",
@@ -347,7 +366,7 @@ const withdrawMoney = async (phone: string, amount: number) => {
     );
 
     await session.commitTransaction();
-    return wallet;
+    return { senderWallet, receiverWallet };
   } catch (error) {
     await session.abortTransaction();
     throw error;
@@ -356,7 +375,6 @@ const withdrawMoney = async (phone: string, amount: number) => {
   }
 };
 
-// Block/unblock wallet
 const updateWalletBlockStatus = async (phone: string, isBlocked: boolean) => {
   const user = await findUserByPhone(phone);
   const wallet = await Wallet.findOneAndUpdate(
@@ -368,7 +386,6 @@ const updateWalletBlockStatus = async (phone: string, isBlocked: boolean) => {
   return wallet;
 };
 
-// Get all wallets
 const getAllWallets = async (query: Record<string, string>) => {
   const queryBuilder = new QueryBuilder(Wallet.find(), query);
   const wallets = await queryBuilder.sort().paginate();

@@ -30,6 +30,10 @@ const userSchema = new Schema<Iuser>(
     isDeleted: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
 
+    // OTP fields
+    otp: { type: String, default: null },
+    otpExpires: { type: Date, default: null },
+
     auths: [authschema],
   },
   { timestamps: true, versionKey: false }

@@ -7,12 +7,22 @@ import cookieParser from "cookie-parser";
 import { notFoundRoute } from "./middleware/notFoundRoute";
 import { globalErrorHandler } from "./middleware/errorHandlaer";
 import { envConfig } from "./config/env";
+// import { envConfig } from "./config/env";
 
 app.use(cookieParser());
 app.use(express.json());
-app.set("trust proxy", true);
+app.set("trust proxy", 1);
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: envConfig.FRONTEND_URL, credentials: true }));
+app.use(
+  cors({
+    origin: [
+      envConfig.FRONTEND_URL,
+      // "http://localhost:3000",
+      // "http://localhost:3001",
+    ],
+    credentials: true,
+  })
+);
 app.use("/api/v1", router);
 
 app.get("/", (req: Request, res: Response) => {

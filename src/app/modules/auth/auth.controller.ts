@@ -12,11 +12,13 @@ const userLogin = catchAsycn(async (req: Request, res: Response) => {
   const loginInfo = await AuthService.userLogin(req.body);
   res.cookie("refreshToken", loginInfo.refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
+    sameSite: "none",
   });
   res.cookie("accessToken", loginInfo.accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
+    sameSite: "none",
   });
   sendResponse(res, {
     success: true,
@@ -50,13 +52,13 @@ const getNewAccessToken = catchAsycn(async (req: Request, res: Response) => {
 const logout = catchAsycn(async (req: Request, res: Response) => {
   res.clearCookie("accessToken", {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
   });
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
   });
 
   sendResponse(res, {

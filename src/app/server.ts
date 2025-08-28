@@ -2,7 +2,7 @@ import { Server } from "http";
 import mongoose from "mongoose";
 import app from "./app";
 import { envConfig } from "./config/env";
-import { connectRedis } from "./config/radis.config";
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 let server: Server;
 
@@ -10,7 +10,6 @@ const startServer = async () => {
   try {
     await mongoose.connect(envConfig.DB_URL);
     console.log(" Connected to MongoDB");
-    await connectRedis();
     console.log(" Connected to Redis");
     const port = Number(envConfig.PORT) || 5000;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

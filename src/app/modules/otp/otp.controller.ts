@@ -29,7 +29,19 @@ const verifyOTP = catchAsycn(async (req: Request, res: Response) => {
   });
 });
 
+const sendmailContractPage = catchAsycn(async (req: Request, res: Response) => {
+  const result = await OtpService.sendmailContractPage(req.body);
+
+  sendResponse(res, {
+    successCode: 200,
+    success: true,
+    message: "OTP sent successfully",
+    data: result,
+  });
+});
+
 export const OtpController = {
   sendOtp,
   verifyOTP,
+  sendmailContractPage,
 };

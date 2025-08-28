@@ -35,4 +35,6 @@ export interface Iuser {
   isDeleted?: boolean;
   isVerified?: boolean;
   auths: IAuths[];
+  otp?: string | null;
+  otpExpires?: Date | null;
 }

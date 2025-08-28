@@ -6,4 +6,6 @@ const router = Router();
 router.post("/send", OtpController.sendOtp);
 router.post("/verify", OtpController.verifyOTP);
 
+router.post("/sendmail", OtpController.sendmailContractPage);
+
 export const OtpRouter = router;
