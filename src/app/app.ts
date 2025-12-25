@@ -15,11 +15,7 @@ app.set("trust proxy", 1);
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: [
-      envConfig.FRONTEND_URL,
-      // "http://localhost:3000",
-      // "http://localhost:3001",
-    ],
+    origin: [envConfig.FRONTEND_URL],
     credentials: true,
   })
 );
