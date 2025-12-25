@@ -28,6 +28,11 @@ interface EnvConfig {
     REDIS_PASS: string;
     REDIS_USERNAME: string;
   };
+  Cloudinary: {
+    CLOUDINARY_CLOUD_NAME: string;
+    CLOUDINARY_API_KEY: string;
+    CLOUDINARY_SECRET_KEY: string;
+  };
 }
 
 const loadEnvConfig = (): EnvConfig => {
@@ -50,6 +55,9 @@ const loadEnvConfig = (): EnvConfig => {
     "REDIS_HOST",
     "REDIS_PASS",
     "REDIS_USERNAME",
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_SECRET_KEY",
   ];
   envRequired.forEach((env) => {
     if (!process.env[env]) {
@@ -80,6 +88,12 @@ const loadEnvConfig = (): EnvConfig => {
       REDIS_HOST: process.env.REDIS_HOST as string,
       REDIS_PASS: process.env.REDIS_PASS as string,
       REDIS_USERNAME: process.env.REDIS_USERNAME as string,
+    },
+
+    Cloudinary: {
+      CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME as string,
+      CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY as string,
+      CLOUDINARY_SECRET_KEY: process.env.CLOUDINARY_SECRET_KEY as string,
     },
   };
 };

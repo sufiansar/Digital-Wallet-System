@@ -48,13 +48,14 @@ export const checkAuth =
         throw new AppError(httpStatus.BAD_REQUEST, "User is deleted", "");
       }
 
-      if (!authRoles.includes(verifiedToken.role)) {
+      if (authRoles.length > 0 && !authRoles.includes(verifiedToken.role)) {
         throw new AppError(
           403,
           "You are not permitted to access this route",
           ""
         );
       }
+
       req.user = verifiedToken;
       next();
     } catch (error) {

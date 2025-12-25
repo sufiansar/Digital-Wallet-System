@@ -5,12 +5,17 @@ import { walletRoutes } from "../wallet/wallet.route";
 import { transactionRoutes } from "../ transaction/transaction.route";
 import { OtpRouter } from "../otp/otp.route";
 import { StatsRoutes } from "../stats/stats.route";
+import { BlogRoutes } from "../blog/blog.route";
 
 export const router = Router();
 export const modulerRoutes = [
   {
     path: "/user",
     route: UserRoutes,
+  },
+  {
+    path: "/blog",
+    route: BlogRoutes,
   },
   {
     path: "/auth",
